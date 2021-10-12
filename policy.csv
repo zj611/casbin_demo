@@ -1,2 +1,11 @@
-p, dajun, data1, read
-p, lizi, data2, write
+p, role1, svcGroup1, on
+p, role2, svcGroup2, on
+p, role3, svcGroup3, on
+
+p2, app1, svcGroup4, on
+
+g, app1, role1
+g, app2, role2
+
+g2, api1, svcGroup5
+g2, api2, svcGroup6
