@@ -1,5 +1,5 @@
 p, role1, svcGroup1, on
-p, role2, svcGroup2, on
+p, role2, svcGroup1, on
 p, role3, svcGroup3, on
 
 p2, app1, svcGroup4, on

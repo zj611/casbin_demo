@@ -91,6 +91,13 @@ func main() {
 
 	//uu := e.HasPermissionForUser("app1")
 	//fmt.Println(uu)
+
+
+
+	fmt.Println(e1.GetImplicitUsersForRole("role1"))
+	//[app1] <nil>
+	fmt.Println(e1.GetImplicitUsersForPermission("p","svcGroup1","on"))
+	//[app1] <nil>
 }
 
 
