@@ -26,33 +26,66 @@ func main() {
 	// The adapter will use an existing gorm.DB instnace.
 	a, _ := gormadapter.NewAdapterByDBWithCustomTable(db, &CasbinRule{})
 	e, _ := casbin.NewEnforcer("model.conf", a)
-	e.EnableAutoSave(false)
+	e.EnableAutoSave(true)
+
+	// 向当前命名策略添加授权规则。 如果规则已经存在，函数返回false，并且不会添加规则。 否则，函数通过添加新规则并返回true
+	e.AddNamedPolicy("p", "role::1", "stra::1", "on")
+	e.AddNamedPolicy("p", "role::1", "stra::2", "on")
+	e.AddNamedPolicy("p", "role::1", "svcg::1", "on")
+	e.AddNamedPolicy("p", "role::2", "svcg::2", "on")
+	e.AddNamedPolicy("p", "role::3", "svcg::3", "on")
+
+	//将命名角色继承规则添加到当前策略。 如果规则已经存在，函数返回false，并且不会添加规则。 否则，函数通过添加新规则并返回true
+	e.AddNamedGroupingPolicy("g", "apikey::1", "role::1")
+	e.AddNamedGroupingPolicy("g", "apikey::11", "role::1")
+	e.AddNamedGroupingPolicy("g", "apikey::2", "role::2")
+
+	e.AddNamedGroupingPolicy("g2", "uriid::1", "svcg::1")
+	e.AddNamedGroupingPolicy("g2", "uriid::2", "svcg::2")
+
+	e.AddNamedGroupingPolicy("g2", "uriid::1", "stra::1")
+	e.AddNamedGroupingPolicy("g2", "uriid::11", "stra::1")
+	e.AddNamedGroupingPolicy("g2", "uriid::2", "stra::2")
 
 	// Load the policy from DB.
 	e.LoadPolicy()
 
 	// Modify the policy.
-	var k [][]string
-	k = append(k, []string{"aqaq", "data1", "read"})
-	e.AddPolicies(k)
+	//var k [][]string
+	//k = append(k, []string{"aqaq", "data1", "read"})
+	//e.AddPolicies(k)
 	//e.RemovePolicy(k[0])
-	// 向当前命名策略添加授权规则。 如果规则已经存在，函数返回false，并且不会添加规则。 否则，函数通过添加新规则并返回true
-	//e.AddNamedPolicy("p", "role::1", "stra::1", "on")
-	//e.AddNamedPolicy("p", "role::1", "stra::2", "on")
-	//e.AddNamedPolicy("p", "role::1", "svcg::1", "on")
-	//e.AddNamedPolicy("p", "role::2", "svcg::2", "on")
-	//e.AddNamedPolicy("p", "role::3", "svcg::3", "on")
 
-	//将命名角色继承规则添加到当前策略。 如果规则已经存在，函数返回false，并且不会添加规则。 否则，函数通过添加新规则并返回true
-	//e.AddNamedGroupingPolicy("g", "apikey::1", "role::1")
-	//e.AddNamedGroupingPolicy("g", "apikey::11", "role::1")
-	//e.AddNamedGroupingPolicy("g", "apikey::2", "role::2")
-	//
-	//e.AddNamedGroupingPolicy("g2", "uriid::1", "svcg::1")
-	//e.AddNamedGroupingPolicy("g2", "uriid::2", "svcg::2")
-	//
-	//e.AddNamedGroupingPolicy("g2", "uriid::1", "stra::1")
-	//e.AddNamedGroupingPolicy("g2", "uriid::2", "stra::2")
+	//e.DeleteRole("role::1")
+	//e.DeleteUser("apikey::2")
+
+	//e.DeletePermission("stra::1")
+	//fmt.Println(e.GetUsersForRole("role::1"))
+	//fmt.Println(e.GetUsersForRole("stra::1"))
+	//fmt.Println(e.GetImplicitUsersForRole("stra::1"))
+
+
+	//=====================删除资源"stra::1"====================
+	//删除资源"stra::1"
+	//l,_ := e.GetImplicitUsersForRole("stra::1")	//①删除对应的权限关系
+	//e.DeletePermission("stra::1")
+	//for _,v := range l{	//②删除归属关系
+	//	fmt.Println("for",l,v)
+	//	//_, _ = e.DeleteRoleForUser(v1, "stra::1")
+	//	e.RemoveNamedGroupingPolicy("g2",v,"stra::1")
+	//}
+	//===========================================================
+
+
+
+
+	//b, err := e.RemoveNamedGroupingPolicy( "g2", "uriid::1")
+	//fmt.Println("del",b,err)
+
+	//e.DeleteRole("stra::2")
+
+
+
 	// Save the policy back to DB.
 	//err = e.SavePolicy()
 
