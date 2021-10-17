@@ -51,19 +51,17 @@ func main() {
 	e.LoadPolicy()
 
 	// Modify the policy.
-	//var k [][]string
-	//k = append(k, []string{"aqaq", "data1", "read"})
-	//e.AddPolicies(k)
-	//e.RemovePolicy(k[0])
-
-	//e.DeleteRole("role::1")
-	//e.DeleteUser("apikey::2")
-
-	//e.DeletePermission("stra::1")
 	//fmt.Println(e.GetUsersForRole("role::1"))
 	//fmt.Println(e.GetUsersForRole("stra::1"))
 	//fmt.Println(e.GetImplicitUsersForRole("stra::1"))
 
+	//=====================删除角色"role::1"====================
+	//e.DeleteRole("role::1")//一次性全部删除权限关系,和归属关系
+	//===========================================================
+
+	//=====================删除用户"apikey::1"====================
+	e.DeleteUser("apikey::1")//一次性全部删除权限关系,和归属关系
+	//===========================================================
 
 	//=====================删除资源"stra::1"====================
 	//删除资源"stra::1"
@@ -75,16 +73,6 @@ func main() {
 	//	e.RemoveNamedGroupingPolicy("g2",v,"stra::1")
 	//}
 	//===========================================================
-
-
-
-
-	//b, err := e.RemoveNamedGroupingPolicy( "g2", "uriid::1")
-	//fmt.Println("del",b,err)
-
-	//e.DeleteRole("stra::2")
-
-
 
 	// Save the policy back to DB.
 	//err = e.SavePolicy()
