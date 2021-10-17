@@ -35,7 +35,9 @@ func main() {
 	e.AddNamedPolicy("p", "role::2", "svcg::2", "on")
 	e.AddNamedPolicy("p", "role::3", "svcg::3", "on")
 
+
 	//将命名角色继承规则添加到当前策略。 如果规则已经存在，函数返回false，并且不会添加规则。 否则，函数通过添加新规则并返回true
+	e.AddNamedGroupingPolicy("g", "admin::1", "role::111")
 	e.AddNamedGroupingPolicy("g", "apikey::1", "role::1")
 	e.AddNamedGroupingPolicy("g", "apikey::11", "role::1")
 	e.AddNamedGroupingPolicy("g", "apikey::2", "role::2")
@@ -54,13 +56,25 @@ func main() {
 	//fmt.Println(e.GetUsersForRole("role::1"))
 	//fmt.Println(e.GetUsersForRole("stra::1"))
 	//fmt.Println(e.GetImplicitUsersForRole("stra::1"))
-
+	check1(e, "admin::1", "stra::1", "on")
+	check1(e, "apikey::1", "svcg::2", "on")
 	//=====================用户查询角色 "apikey::1"====================
 	//fmt.Println(e.GetRolesForUser("apikey::1"))
 	//===========================================================
 
+	//=====================根据"apikey::1"找到服务组id====================
+	//fmt.Println(e.GetImplicitPermissionsForUser("apikey::1")) //[[role::1 stra::1 on] [role::1 stra::2 on] [role::1 svcg::1 on]]
+	//===========================================================
+
+
+	//=====================根据"role::1"找到apikey====================
+	//fmt.Println(e.GetUsersForRole("role::1")) //[[role::1 stra::1 on] [role::1 stra::2 on] [role::1 svcg::1 on]]
+	//===========================================================
+
+
+
 	//=====================删除单一的用户-角色 "apikey::1"====================
-	e.DeleteRoleForUser("apikey::2", "role::2")
+	//e.DeleteRoleForUser("apikey::2", "role::2")
 	//===========================================================
 
 	//=====================删除角色"role::1"====================
@@ -94,6 +108,15 @@ func main() {
 	fmt.Println(e.Enforce("apikey::1", "stra::1", "on"))
 	fmt.Println(e.Enforce("apikey::1", "stra::2", "on"))
 	fmt.Println(e.Enforce("apikey::2", "stra::1", "on"))
+}
+
+func check1(e *casbin.Enforcer, sub, obj, act string) {
+	ok, _ := e.Enforce(sub, obj, act)
+	if ok {
+		fmt.Printf("%s CAN %s %s\n", sub, act, obj)
+	} else {
+		fmt.Printf("%s CANNOT %s %s\n", sub, act, obj)
+	}
 }
 
 func check(e *casbin.Enforcer, app, role, svcGroup, act string) {
