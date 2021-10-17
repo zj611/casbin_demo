@@ -7,14 +7,11 @@ import (
 	"gorm.io/driver/mysql"
 	//"github.com/jinzhu/gorm"
 	"gorm.io/gorm"
-	"log"
 )
 
 func main() {
-
-	//db, _ := gorm.Open("mysql","root:root@tcp(localhost:3306)/test?charset=utf8&parseTime=true")
 	db, err := gorm.Open(mysql.New(mysql.Config{
-		DSN: "root:123@tcp(0.0.0.0:3306)/data?charset=utf8mb4&parseTime=True&loc=Local", // data source name, refer https://github.com/go-sql-driver/mysql#dsn-data-source-name
+		DSN: "root:root@tcp(0.0.0.0:3306)/test?charset=utf8mb4&parseTime=True&loc=Local", // data source name, refer https://github.com/go-sql-driver/mysql#dsn-data-source-name
 		DefaultStringSize: 256, // add default size for string fields, by default, will use db type `longtext` for fields without size, not a primary key, no index defined and don't have default values
 		DisableDatetimePrecision: true, // disable datetime precision support, which not supported before MySQL 5.6
 		DontSupportRenameIndex: true, // drop & create index when rename index, rename index not supported before MySQL 5.7, MariaDB
@@ -28,69 +25,49 @@ func main() {
 	// Initialize a Gorm adapter and use it in a Casbin enforcer:
 	// The adapter will use an existing gorm.DB instnace.
 	a, _ := gormadapter.NewAdapterByDBWithCustomTable(db, &CasbinRule{})
-	e, _ := casbin.NewEnforcer("rbac_model.conf", a)
+	e, _ := casbin.NewEnforcer("model.conf", a)
+	e.EnableAutoSave(false)
 
 	// Load the policy from DB.
 	e.LoadPolicy()
 
 	// Modify the policy.
 	var k [][]string
-	k = append(k, []string{"alice", "data1", "read"})
+	k = append(k, []string{"aqaq", "data1", "read"})
 	e.AddPolicies(k)
+	//e.RemovePolicy(k[0])
+	// 向当前命名策略添加授权规则。 如果规则已经存在，函数返回false，并且不会添加规则。 否则，函数通过添加新规则并返回true
+	//e.AddNamedPolicy("p", "role::1", "stra::1", "on")
+	//e.AddNamedPolicy("p", "role::1", "stra::2", "on")
+	//e.AddNamedPolicy("p", "role::1", "svcg::1", "on")
+	//e.AddNamedPolicy("p", "role::2", "svcg::2", "on")
+	//e.AddNamedPolicy("p", "role::3", "svcg::3", "on")
 
-
-	// Check the permission.
-	bo1, _ := e.Enforce("alice", "data1", "read")
-	fmt.Println("bo1",bo1)
-
-	e.RemovePolicy(k[0])
-
-	// Check the permission.
-	bo1, _ = e.Enforce("alice", "data1", "read")
-	fmt.Println("bo1",bo1)
-
+	//将命名角色继承规则添加到当前策略。 如果规则已经存在，函数返回false，并且不会添加规则。 否则，函数通过添加新规则并返回true
+	//e.AddNamedGroupingPolicy("g", "apikey::1", "role::1")
+	//e.AddNamedGroupingPolicy("g", "apikey::11", "role::1")
+	//e.AddNamedGroupingPolicy("g", "apikey::2", "role::2")
+	//
+	//e.AddNamedGroupingPolicy("g2", "uriid::1", "svcg::1")
+	//e.AddNamedGroupingPolicy("g2", "uriid::2", "svcg::2")
+	//
+	//e.AddNamedGroupingPolicy("g2", "uriid::1", "stra::1")
+	//e.AddNamedGroupingPolicy("g2", "uriid::2", "stra::2")
 	// Save the policy back to DB.
-	e.SavePolicy()
+	//err = e.SavePolicy()
+
+	// Check the permission.
+
+	fmt.Println( e.Enforce("apikey::1", "svcg::1", "on"))
+	fmt.Println(e.EnforceEx("apikey::1", "svcg::1", "on"))
+
+	fmt.Println( e.Enforce("apikey::1", "uriid::1", "on"))
+	fmt.Println( e.Enforce("apikey::1", "stra::1", "on"))
+	fmt.Println( e.Enforce("apikey::1", "stra::2", "on"))
+	fmt.Println( e.Enforce("apikey::2", "stra::1", "on"))
 
 
-	//测试用户-应用-角色-服务组关系
-	e1, err := casbin.NewEnforcer("./model.conf", "./policy.csv")
-	if err != nil {
-		log.Fatalf("NewEnforecer failed:%v\n", err)
-	}
-	//p, role1, svcGroup1, on
-	check(e1, "app1", "role1", "svcGroup1","on")
 
-	//https://casbin.org/docs/zh-CN/rbac-api
-	d, _ := e1.GetImplicitResourcesForUser("app1", "")
-	fmt.Println("GetImplicitResourcesForUser: ",d)
-
-	d,_ = e1.GetImplicitPermissionsForUser("app1","")
-	fmt.Println("GetImplicitPermissionsForUser: ",d)
-
-	d1, _ := e1.GetRolesForUser("app1")
-	fmt.Println("GetRolesForUser: ",d1)
-	//[role1]
-
-	d = e1.GetPermissionsForUser("app1")
-	fmt.Println("GetPermissionsForUser: ",d)
-	//[]
-
-	d, _ = e1.GetImplicitPermissionsForUser("app1")
-	fmt.Println("GetImplicitPermissionsForUser: ",d)
-	// [[role1 svcGroup1 on] [role1 svcGroup1 on]]
-
-	hasNamedPolicy := e1.HasNamedPolicy("p2", "role1", "svcGroup1", "on")
-	fmt.Println(hasNamedPolicy)
-
-	//e.GetFilteredGroupingPolicy()
-
-	// 确定是否存在授权规则
-	hasPolicy := e1.HasPolicy("app1", "role1", "on")
-	fmt.Println(hasPolicy)
-
-	//uu := e.HasPermissionForUser("app1")
-	//fmt.Println(uu)
 }
 
 
@@ -106,11 +83,11 @@ func check(e *casbin.Enforcer, app, role, svcGroup,act string) {
 // Increase the column size to 512.
 type CasbinRule struct {
 	ID    uint   `gorm:"primaryKey;autoIncrement"`
-	Ptype string `gorm:"type:varchar(256);uniqueIndex:unique_index"`
-	V0    string `gorm:"type:varchar(256);uniqueIndex:unique_index"`
-	V1    string `gorm:"type:varchar(256);uniqueIndex:unique_index"`
-	V2    string `gorm:"type:varchar(256);uniqueIndex:unique_index"`
-	V3    string `gorm:"type:varchar(256);uniqueIndex:unique_index"`
-	V4    string `gorm:"type:varchar(256);uniqueIndex:unique_index"`
-	V5    string `gorm:"type:varchar(256);uniqueIndex:unique_index"`
+	Ptype string `gorm:"type:varchar(100);uniqueIndex:unique_index"`
+	V0    string `gorm:"type:varchar(100);uniqueIndex:unique_index"`
+	V1    string `gorm:"type:varchar(100);uniqueIndex:unique_index"`
+	V2    string `gorm:"type:varchar(100);uniqueIndex:unique_index"`
+	V3    string `gorm:"type:varchar(100);uniqueIndex:unique_index"`
+	V4    string `gorm:"type:varchar(100);uniqueIndex:unique_index"`
+	V5    string `gorm:"type:varchar(100);uniqueIndex:unique_index"`
 }
