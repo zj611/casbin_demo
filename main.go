@@ -11,12 +11,12 @@ import (
 
 func main() {
 	db, err := gorm.Open(mysql.New(mysql.Config{
-		DSN: "root:root@tcp(0.0.0.0:3306)/test?charset=utf8mb4&parseTime=True&loc=Local", // data source name, refer https://github.com/go-sql-driver/mysql#dsn-data-source-name
-		DefaultStringSize: 256, // add default size for string fields, by default, will use db type `longtext` for fields without size, not a primary key, no index defined and don't have default values
-		DisableDatetimePrecision: true, // disable datetime precision support, which not supported before MySQL 5.6
-		DontSupportRenameIndex: true, // drop & create index when rename index, rename index not supported before MySQL 5.7, MariaDB
-		DontSupportRenameColumn: true, // use change when rename column, rename rename not supported before MySQL 8, MariaDB
-		SkipInitializeWithVersion: false, // smart configure based on used version
+		DSN:                       "root:root@tcp(0.0.0.0:3306)/test?charset=utf8mb4&parseTime=True&loc=Local", // data source name, refer https://github.com/go-sql-driver/mysql#dsn-data-source-name
+		DefaultStringSize:         256,                                                                         // add default size for string fields, by default, will use db type `longtext` for fields without size, not a primary key, no index defined and don't have default values
+		DisableDatetimePrecision:  true,                                                                        // disable datetime precision support, which not supported before MySQL 5.6
+		DontSupportRenameIndex:    true,                                                                        // drop & create index when rename index, rename index not supported before MySQL 5.7, MariaDB
+		DontSupportRenameColumn:   true,                                                                        // use change when rename column, rename rename not supported before MySQL 8, MariaDB
+		SkipInitializeWithVersion: false,                                                                       // smart configure based on used version
 	}), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
@@ -60,7 +60,7 @@ func main() {
 	//===========================================================
 
 	//=====================删除用户"apikey::1"====================
-	e.DeleteUser("apikey::1")//一次性全部删除权限关系,和归属关系
+	e.DeleteUser("apikey::1") //一次性全部删除权限关系,和归属关系
 	//===========================================================
 
 	//=====================删除资源"stra::1"====================
@@ -79,20 +79,16 @@ func main() {
 
 	// Check the permission.
 
-	fmt.Println( e.Enforce("apikey::1", "svcg::1", "on"))
+	fmt.Println(e.Enforce("apikey::1", "svcg::1", "on"))
 	fmt.Println(e.EnforceEx("apikey::1", "svcg::1", "on"))
 
-	fmt.Println( e.Enforce("apikey::1", "uriid::1", "on"))
-	fmt.Println( e.Enforce("apikey::1", "stra::1", "on"))
-	fmt.Println( e.Enforce("apikey::1", "stra::2", "on"))
-	fmt.Println( e.Enforce("apikey::2", "stra::1", "on"))
-
-
-
+	fmt.Println(e.Enforce("apikey::1", "uriid::1", "on"))
+	fmt.Println(e.Enforce("apikey::1", "stra::1", "on"))
+	fmt.Println(e.Enforce("apikey::1", "stra::2", "on"))
+	fmt.Println(e.Enforce("apikey::2", "stra::1", "on"))
 }
 
-
-func check(e *casbin.Enforcer, app, role, svcGroup,act string) {
+func check(e *casbin.Enforcer, app, role, svcGroup, act string) {
 	ok, _ := e.Enforce(app, role, svcGroup, act)
 	if ok {
 		fmt.Printf("%s CAN %s %s\n", app, act, role)
