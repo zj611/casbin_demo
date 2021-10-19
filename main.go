@@ -24,7 +24,7 @@ func main() {
 
 	// Initialize a Gorm adapter and use it in a Casbin enforcer:
 	// The adapter will use an existing gorm.DB instnace.
-	a, _ := gormadapter.NewAdapterByDBWithCustomTable(db, &CasbinRule{})
+	a, _ := gormadapter.NewAdapterByDBWithCustomTable(db, &CasbinRulePre{})
 	e, _ := casbin.NewEnforcer("model.conf", a)
 	e.EnableAutoSave(true)
 
@@ -133,7 +133,7 @@ func check(e *casbin.Enforcer, app, role, svcGroup, act string) {
 }
 
 // Increase the column size to 512.
-type CasbinRule struct {
+type CasbinRulePre struct {
 	ID    uint   `gorm:"primaryKey;autoIncrement"`
 	Ptype string `gorm:"type:varchar(100);uniqueIndex:unique_index"`
 	V0    string `gorm:"type:varchar(100);uniqueIndex:unique_index"`
