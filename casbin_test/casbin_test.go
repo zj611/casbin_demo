@@ -44,7 +44,7 @@ func TestWatcher(t *testing.T) {
 			Network:  "tcp",
 			Password: "123",
 		},
-		Channel:    "/casbin",
+		Channel:    "/casbin_dev",
 		// Only exists in test, generally be true
 		IgnoreSelf: true,
 		//OptionalUpdateCallback: rediswatcher.CustomDefaultFunc(updateCallback),
@@ -87,19 +87,19 @@ func TestWatcher(t *testing.T) {
 
 
 	//-------增加权限-------
-	e.AddNamedPolicy("p", "role::1", "stra::2", "on")
-	time.Sleep(time.Duration(1) * time.Second)
+	//e.AddNamedPolicy("p", "role::1xxx0000", "stra::2", "on")
+	//time.Sleep(time.Duration(1) * time.Second)
 
 	//-------删除权限-------
-	e.RemoveNamedPolicy("p", "role::1", "stra::2", "on")
+	e.RemoveNamedPolicy("p", "role::1xxx0000", "stra::2", "on")
 	time.Sleep(time.Duration(1) * time.Second)
 
 	//-------增加组策略-------
-	e.AddNamedGroupingPolicy("g", "admin::1", "role::111")
+	e.AddNamedGroupingPolicy("g", "admin::1xxx0000", "role::111")
 	time.Sleep(time.Duration(1) * time.Second)
 
 	//-------删除组策略-------
-	e.RemoveNamedGroupingPolicy("g", "admin::1", "role::111")
+	e.RemoveNamedGroupingPolicy("g", "admin::1xxx0000", "role::111")
 	time.Sleep(time.Duration(1) * time.Second)
 
 
