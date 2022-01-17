@@ -3,16 +3,20 @@ package main
 import (
 	"fmt"
 	"github.com/casbin/casbin/v2"
-	redisAdapter "github.com/mlsen/casbin-redis-adapter/v2"
+	//redisAdapter "github.com/mlsen/casbin-redis-adapter/v2"
+	redisAdapter "github.com/casbin/redis-adapter/v2"
 	"testing"
 )
 
 func TestRedisAdapter(t *testing.T)  {
 
-	adapter, err := redisAdapter.NewFromURL("redis://:123@localhost:6380/0")
-	if err != nil{
-		panic(err)
-	}
+	//adapter, err := redisAdapter.NewFromURL("redis://:123@localhost:6380/0")
+	//if err != nil{
+	//	panic(err)
+	//}
+
+	adapter := redisAdapter.NewAdapterWithPassword("tcp","localhost:6380","123")
+
 
 	enforcer, err := casbin.NewEnforcer("model.conf", adapter)
 	if err != nil{
