@@ -2,7 +2,6 @@
 github.com/Knetic/govaluate
 # github.com/billcobbler/casbin-redis-watcher/v2 v2.0.0-20211014141847-d29c8619193d
 ## explicit
-github.com/billcobbler/casbin-redis-watcher/v2
 # github.com/casbin/casbin/v2 v2.37.4
 ## explicit
 github.com/casbin/casbin/v2
@@ -19,10 +18,12 @@ github.com/casbin/casbin/v2/rbac/default-role-manager
 github.com/casbin/casbin/v2/util
 # github.com/casbin/gorm-adapter/v2 v2.1.0
 ## explicit
-github.com/casbin/gorm-adapter/v2
 # github.com/casbin/gorm-adapter/v3 v3.4.4
 ## explicit
 github.com/casbin/gorm-adapter/v3
+# github.com/casbin/redis-adapter/v2 v2.1.0
+## explicit
+github.com/casbin/redis-adapter/v2
 # github.com/casbin/redis-watcher/v2 v2.0.0-20211014085820-755034fcd60d
 ## explicit
 github.com/casbin/redis-watcher/v2
@@ -36,9 +37,6 @@ github.com/denisenkom/go-mssqldb/internal/querytext
 github.com/denisenkom/go-mssqldb/msdsn
 # github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f
 github.com/dgryski/go-rendezvous
-# github.com/garyburd/redigo v1.6.0
-github.com/garyburd/redigo/internal
-github.com/garyburd/redigo/redis
 # github.com/go-redis/redis/v8 v8.8.0
 ## explicit
 github.com/go-redis/redis/v8
@@ -53,6 +51,9 @@ github.com/go-redis/redis/v8/internal/util
 github.com/go-sql-driver/mysql
 # github.com/golang-sql/civil v0.0.0-20190719163853-cb61b32ac6fe
 github.com/golang-sql/civil
+# github.com/gomodule/redigo v2.0.0+incompatible
+github.com/gomodule/redigo/internal
+github.com/gomodule/redigo/redis
 # github.com/google/uuid v1.2.0
 github.com/google/uuid
 # github.com/jackc/chunkreader/v2 v2.0.1
@@ -77,17 +78,13 @@ github.com/jackc/pgx/v4/internal/sanitize
 github.com/jackc/pgx/v4/stdlib
 # github.com/jinzhu/gorm v1.9.16
 ## explicit
-github.com/jinzhu/gorm
 # github.com/jinzhu/inflection v1.0.0
 github.com/jinzhu/inflection
 # github.com/jinzhu/now v1.1.2
 github.com/jinzhu/now
-# github.com/lib/pq v1.10.2
-github.com/lib/pq
-github.com/lib/pq/oid
-github.com/lib/pq/scram
 # github.com/mlsen/casbin-redis-adapter/v2 v2.0.1
 ## explicit
+github.com/mlsen/casbin-redis-adapter/v2
 # github.com/rafaeljusto/redigomock v2.4.0+incompatible
 ## explicit
 # go.opentelemetry.io/otel v0.19.0

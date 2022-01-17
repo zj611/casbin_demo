@@ -4,14 +4,48 @@ import (
 	"fmt"
 	"github.com/casbin/casbin/v2"
 	gormadapter "github.com/casbin/gorm-adapter/v3"
+	//redisAdapter "github.com/mlsen/casbin-redis-adapter/v2"
 	//"github.com/mlsen/casbin-redis-adapter/v2"
-
+	redisAdapter "github.com/casbin/redis-adapter/v2"
 	"gorm.io/driver/mysql"
 	//"github.com/jinzhu/gorm"
 	"gorm.io/gorm"
 )
 
 func main() {
+
+	//url := fmt.Sprintf("redis://:%v@%v/%v",ReadEnv().RedisPassword,ReadEnv().RedisURL.Host,ReadEnv().RedisDB)
+	//adapter, err := redisAdapter.NewFromURL("redis://:123@localhost:6380/0")
+	//if err != nil{
+	//	panic(err)
+	//}
+	adapter := redisAdapter.NewAdapterWithPassword("tcp","localhost:6380","123")
+
+
+	//初始化
+	enforcer, err := casbin.NewEnforcer("model.conf", adapter)
+	if err != nil{
+		panic(err)
+	}
+	enforcer.EnableAutoSave(true)
+
+	// Load policy from redis
+	enforcer.LoadPolicy()
+
+	fmt.Println("kiikiki")
+	enforcer.AddNamedGroupingPolicy("g", []string{"apikey::555", "role::1111111111111004"})
+
+	check1(enforcer, "apikey::555", "uriid::11211111121", "on")
+	fmt.Println(enforcer.Enforce("apikey::555", "uriid::11211111121", "on"))
+
+	fmt.Println("0101")
+	role_test := `role::35046358490550272qqqq
+	expr 855534449 + 870448142`
+
+	enforcer.AddNamedPolicy("p", []string{role_test, "role::1111111111111004","on"})
+
+	fmt.Println(enforcer.Enforce("apikey::555", "uriid::11211111121", "on"))
+	fmt.Println("0101")
 	//re_a, err := redisadapter.NewFromURL("redis://:123@localhost:6380/0")
 	//if err != nil{
 	//	panic(err)
@@ -94,11 +128,30 @@ func main() {
 	e.AddNamedGroupingPolicy("g2", "uriid::11", "stra::1")
 	e.AddNamedGroupingPolicy("g2", "uriid::2", "stra::2")
 
+	role_test1 := `role::35046358490550272
+	expr 855534449 + 870448142`
+
+	e.AddNamedPolicy("p", []string{role_test1, "stra::1", "on"})
+
+
+
+	e.AddNamedGroupingPolicy("g2", []string{"uriid::11221", "stra::1"})
+	ook := check1(e, "apikey::9891", "uriid::11221", "on")
+	fmt.Println(ook)
+	ok, _ := e.Enforce("apikey::9891", "uriid::11221", "on")
+	fmt.Println("ok:",ok)
+	fmt.Println(e.HasNamedPolicy("p","apikey::9891", "uriid::11221", "on"))
+
+	fmt.Println(e.GetFilteredNamedGroupingPolicy("g2",1,"stra::1"))
+	fmt.Println(e.GetFilteredNamedGroupingPolicy("g2",0,"uriid::1"))
 	//e.AddNamedGroupingPolicy("g3", "apikey::1", "user::1")
 	//e.AddNamedGroupingPolicy("g3", "apikey::2", "user::1")
 
 	// Load the policy from DB.
 	e.LoadPolicy()
+
+	fmt.Println("jjjjjjjjjjjjjjj")
+	check1(e, "apikey::100", "stra::11212121212", "on")
 
 	// Modify the policy.
 
@@ -191,13 +244,14 @@ func main() {
 	fmt.Println(e.Enforce("apikey::2", "stra::1", "on"))
 }
 
-func check1(e *casbin.Enforcer, sub, obj, act string) {
+func check1(e *casbin.Enforcer, sub, obj, act string) bool {
 	ok, _ := e.Enforce(sub, obj, act)
 	if ok {
 		fmt.Printf("%s CAN %s %s\n", sub, act, obj)
 	} else {
 		fmt.Printf("%s CANNOT %s %s\n", sub, act, obj)
 	}
+	return ok
 }
 
 func check(e *casbin.Enforcer, app, role, svcGroup, act string) {

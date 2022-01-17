@@ -3,15 +3,11 @@ package casbin_test
 import (
 	"fmt"
 	"github.com/casbin/casbin/v2"
-	gormadapter "github.com/casbin/gorm-adapter/v3"
+	"github.com/go-redis/redis/v8"
 
-	//rediswatcher "github.com/casbin/redis-watcher/v2"
-	watcher "github.com/billcobbler/casbin-redis-watcher/v2"
-	"gorm.io/driver/mysql"
+	rediswatcher "github.com/casbin/redis-watcher/v2"
+
 	"testing"
-
-	//"github.com/jinzhu/gorm"
-	"gorm.io/gorm"
 
 	//redis watcher
 	"log"
@@ -62,45 +58,58 @@ func TestWatcher(t *testing.T) {
 	//	Channel: "/casbin",
 	//}
 
-	w, err := watcher.NewWatcher("127.0.0.1:6380",
-		watcher.Channel("/casbin"),
-		watcher.Password("123"),
-		watcher.IgnoreSelf(true),
-	)
-	if err != nil {
-		panic(err)
-	}
+	//w, err := watcher.NewPublishWatcher("127.0.0.1:6380",
+	//	watcher.Channel("/casbin"),
+	//	watcher.Password("123"),
+	//	watcher.IgnoreSelf(false),
+	//)
+	//if err != nil {
+	//	panic(err)
+	//}
 
-	//w, err := watcher.NewWatcher("localhost:6380", watcher.WatcherOptions{
-	//	Options: redis.Options{
-	//		Network:  "tcp",
-	//		Password: "123",
-	//	},
-	//	Channel:    "/casbin",
-	//	// Only exists in test, generally be true
-	//	IgnoreSelf: false,
-	//	//OptionalUpdateCallback: rediswatcher.CustomDefaultFunc(updateCallback),
-	//})
+
+	w, err := rediswatcher.NewWatcher("localhost:6380", rediswatcher.WatcherOptions{
+		Options: redis.Options{
+			Network:  "tcp",
+			Password: "123",
+		},
+		Channel:    "/casbin",
+		// Only exists in test, generally be true
+		IgnoreSelf: false,
+		//PubClient:,
+		//OptionalUpdateCallback: rediswatcher.CustomDefaultFunc(updateCallback),
+	})
 	if err != nil {
 		fmt.Println("error occur:", err.Error())
 	}
 
-	db, err := gorm.Open(mysql.New(mysql.Config{
-		DSN:                       "root:root@tcp(0.0.0.0:3306)/test?charset=utf8mb4&parseTime=True&loc=Local", // data source name, refer https://github.com/go-sql-driver/mysql#dsn-data-source-name
-		DefaultStringSize:         256,                                                                         // add default size for string fields, by default, will use db type `longtext` for fields without size, not a primary key, no index defined and don't have default values
-		DisableDatetimePrecision:  true,                                                                        // disable datetime precision support, which not supported before MySQL 5.6
-		DontSupportRenameIndex:    true,                                                                        // drop & create index when rename index, rename index not supported before MySQL 5.7, MariaDB
-		DontSupportRenameColumn:   true,                                                                        // use change when rename column, rename rename not supported before MySQL 8, MariaDB
-		SkipInitializeWithVersion: false,                                                                       // smart configure based on used version
-	}), &gorm.Config{})
-	if err != nil {
-		panic("failed to connect database")
-	}
+	//db, err := gorm.Open(mysql.New(mysql.Config{
+	//	DSN:                       "root:root@tcp(0.0.0.0:3306)/test?charset=utf8mb4&parseTime=True&loc=Local", // data source name, refer https://github.com/go-sql-driver/mysql#dsn-data-source-name
+	//	DefaultStringSize:         256,                                                                         // add default size for string fields, by default, will use db type `longtext` for fields without size, not a primary key, no index defined and don't have default values
+	//	DisableDatetimePrecision:  true,                                                                        // disable datetime precision support, which not supported before MySQL 5.6
+	//	DontSupportRenameIndex:    true,                                                                        // drop & create index when rename index, rename index not supported before MySQL 5.7, MariaDB
+	//	DontSupportRenameColumn:   true,                                                                        // use change when rename column, rename rename not supported before MySQL 8, MariaDB
+	//	SkipInitializeWithVersion: false,                                                                       // smart configure based on used version
+	//}), &gorm.Config{})
+	//if err != nil {
+	//	panic("failed to connect database")
+	//}
+	//
+	//// Initialize a Gorm adapter and use it in a Casbin enforcer:
+	//// The adapter will use an existing gorm.DB instnace.
+	//a, _ := gormadapter.NewAdapterByDBWithCustomTable(db, &CasbinRule{})
 
-	// Initialize a Gorm adapter and use it in a Casbin enforcer:
-	// The adapter will use an existing gorm.DB instnace.
-	a, _ := gormadapter.NewAdapterByDBWithCustomTable(db, &CasbinRule{})
-	e, _ := casbin.NewEnforcer("model.conf", a)
+
+	// Initialize the enforcer.
+	//e := casbin.NewEnforcer("model.conf", "examples/rbac_policy.csv")
+
+
+	//
+	//// Update the policy to test the effect.
+	//// You should see "[casbin rules updated]" in the log.
+	//e.SavePolicy()
+
+	e, _ := casbin.NewEnforcer("model.conf", "policy.csv")
 	// Set the watcher for the enforcer.
 	_ = w.SetUpdateCallback(updateCallback)
 
@@ -111,6 +120,12 @@ func TestWatcher(t *testing.T) {
 	e.EnableAutoSave(true)
 	// Load the policy from DB.
 	e.LoadPolicy()
+
+	// Set the watcher for the enforcer.
+	e.SetWatcher(w)
+
+	// Set callback to local example
+	w.SetUpdateCallback(updateCallback)
 
 	// Set callback to local example
 
