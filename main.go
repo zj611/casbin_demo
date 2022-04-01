@@ -4,81 +4,11 @@ import (
 	"fmt"
 	"github.com/casbin/casbin/v2"
 	gormadapter "github.com/casbin/gorm-adapter/v3"
-	//redisAdapter "github.com/mlsen/casbin-redis-adapter/v2"
-	//"github.com/mlsen/casbin-redis-adapter/v2"
-	redisAdapter "github.com/casbin/redis-adapter/v2"
 	"gorm.io/driver/mysql"
-	//"github.com/jinzhu/gorm"
 	"gorm.io/gorm"
 )
 
 func main() {
-
-	//url := fmt.Sprintf("redis://:%v@%v/%v",ReadEnv().RedisPassword,ReadEnv().RedisURL.Host,ReadEnv().RedisDB)
-	//adapter, err := redisAdapter.NewFromURL("redis://:123@localhost:6380/0")
-	//if err != nil{
-	//	panic(err)
-	//}
-	adapter := redisAdapter.NewAdapterWithPassword("tcp","localhost:6380","123")
-
-
-	//初始化
-	enforcer, err := casbin.NewEnforcer("model.conf", adapter)
-	if err != nil{
-		panic(err)
-	}
-	enforcer.EnableAutoSave(true)
-
-	// Load policy from redis
-	enforcer.LoadPolicy()
-
-	fmt.Println("kiikiki")
-	enforcer.AddNamedGroupingPolicy("g", []string{"apikey::555", "role::1111111111111004"})
-
-	check1(enforcer, "apikey::555", "uriid::11211111121", "on")
-	fmt.Println(enforcer.Enforce("apikey::555", "uriid::11211111121", "on"))
-
-	fmt.Println("0101")
-	role_test := `role::35046358490550272qqqq
-	expr 855534449 + 870448142`
-
-	enforcer.AddNamedPolicy("p", []string{role_test, "role::1111111111111004","on"})
-
-	fmt.Println(enforcer.Enforce("apikey::555", "uriid::11211111121", "on"))
-	fmt.Println("0101")
-	//re_a, err := redisadapter.NewFromURL("redis://:123@localhost:6380/0")
-	//if err != nil{
-	//	panic(err)
-	//}
-	//// Initialize a new Enforcer with the redis adapter
-	//re, err := casbin.NewEnforcer("model.conf", re_a)
-	//if err != nil{
-	//	panic(err)
-	//}
-	//re.EnableAutoSave(true)
-	//
-	//// Load policy from redis
-	//re.LoadPolicy()
-	//
-	//// Add a policy to redis
-	//re.AddPolicy("alice", "data", "read")
-	//
-	//// Check for permissions
-	//isok, _ := re.Enforce("alice", "data", "read")
-	//fmt.Println(isok)
-	//// Delete a policy from redis
-	//re.RemovePolicy("alice", "data1", "read")
-	//
-	//// Save all policies to redis
-	//
-	//b, err := re.AddNamedPolicy("p", "12role::1", "stra::1", "on")
-	//fmt.Println(b,err)
-
-	//watcher
-	//w, err := watcher.NewWatcher("127.0.0.1:6380",watcher.Password("123"))
-	//if err != nil {
-	//	panic(err)
-	//}
 
 	db, err := gorm.Open(mysql.New(mysql.Config{
 		DSN:                       "root:root@tcp(0.0.0.0:3306)/test?charset=utf8mb4&parseTime=True&loc=Local", // data source name, refer https://github.com/go-sql-driver/mysql#dsn-data-source-name
@@ -102,7 +32,6 @@ func main() {
 	}
 	e.EnableAutoNotifyWatcher(true)
 
-	//e, _ := casbin.NewDistributedEnforcer("model.conf", a,re_a)
 	e.EnableAutoSave(true)
 
 	// 向当前命名策略添加授权规则。 如果规则已经存在，函数返回false，并且不会添加规则。 否则，函数通过添加新规则并返回true
